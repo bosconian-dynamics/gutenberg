@@ -12,7 +12,6 @@ import {
 	MediaPlaceholder,
 	MediaUploadProgress,
 	RichText,
-	PlainText,
 	BlockControls,
 	MediaUpload,
 	InspectorControls,
@@ -43,6 +42,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import styles from './style.scss';
 
 const URL_COPIED_NOTIFICATION_DURATION_MS = 1500;
+const MIN_WIDTH = 40;
 
 export class FileEdit extends Component {
 	constructor( props ) {
@@ -51,10 +51,13 @@ export class FileEdit extends Component {
 		this.state = {
 			isUploadInProgress: false,
 			isSidebarLinkSettings: false,
+			placeholderTextWidth: 0,
+			maxWidth: 0,
 		};
 
 		this.timerRef = null;
 
+		this.onLayout = this.onLayout.bind( this );
 		this.onSelectFile = this.onSelectFile.bind( this );
 		this.onChangeFileName = this.onChangeFileName.bind( this );
 		this.onChangeDownloadButtonText = this.onChangeDownloadButtonText.bind(
@@ -316,8 +319,44 @@ export class FileEdit extends Component {
 		}
 	}
 
+	onLayout( { nativeEvent } ) {
+		const { width } = nativeEvent.layout;
+		const { paddingLeft, paddingRight } = styles.defaultButton;
+		this.setState( {
+			maxWidth: width - ( paddingLeft + paddingRight ),
+		} );
+	}
+
+	// Render `Text` with `placeholderText` styled as a placeholder
+	// to calculate its width which then is set as a `minWidth`
+	// This should be fixed on RNAztec level. In the mean time,
+	// We use the same strategy implemented in Button block
+	getPlaceholderWidth( placeholderText ) {
+		const { maxWidth, placeholderTextWidth } = this.state;
+		return (
+			<Text
+				style={ styles.placeholder }
+				onTextLayout={ ( { nativeEvent } ) => {
+					const textWidth =
+						nativeEvent.lines[ 0 ] && nativeEvent.lines[ 0 ].width;
+					if ( textWidth && textWidth !== placeholderTextWidth ) {
+						this.setState( {
+							placeholderTextWidth: Math.min(
+								textWidth,
+								maxWidth
+							),
+						} );
+					}
+				} }
+			>
+				{ placeholderText }
+			</Text>
+		);
+	}
+
 	getFileComponent( openMediaOptions, getMediaOptions ) {
 		const { attributes, media } = this.props;
+		const { isButtonFocused, placeholderTextWidth } = this.state;
 
 		const {
 			fileName,
@@ -334,6 +373,22 @@ export class FileEdit extends Component {
 			styles.defaultButton,
 			dimmedStyle
 		);
+
+		const minWidth =
+			isButtonFocused ||
+			( ! isButtonFocused &&
+				downloadButtonText &&
+				downloadButtonText !== '' )
+				? MIN_WIDTH
+				: placeholderTextWidth;
+
+		const placeholderText =
+			isButtonFocused ||
+			( ! isButtonFocused &&
+				downloadButtonText &&
+				downloadButtonText !== '' )
+				? ''
+				: __( 'Add text…' );
 
 		return (
 			<MediaUploadProgress
@@ -354,7 +409,8 @@ export class FileEdit extends Component {
 					}
 
 					return (
-						<View>
+						<View onLayout={ this.onLayout }>
+							{ this.getPlaceholderWidth( placeholderText ) }
 							{ isUploadInProgress ||
 								this.getToolbarEditButton( openMediaOptions ) }
 							{ getMediaOptions() }
@@ -384,9 +440,35 @@ export class FileEdit extends Component {
 										this.getStyleForAlignment( align ),
 									] }
 								>
-									<PlainText
+									<RichText
+										withoutInteractiveFormatting
+										__unstableMobileNoFocusOnMount
+										rootTagsToEliminate={ [ 'p' ] }
+										tagName="p"
+										textAlign="center"
+										minWidth={ minWidth }
+										maxWidth={ this.state.maxWidth }
+										deleteEnter={ true }
 										style={ styles.buttonText }
 										value={ downloadButtonText }
+										placeholder={ placeholderText }
+										unstableOnFocus={ () =>
+											this.setState( {
+												isButtonFocused: true,
+											} )
+										}
+										onBlur={ () =>
+											this.setState( {
+												isButtonFocused: false,
+											} )
+										}
+										selectionColor={
+											styles.buttonText.color
+										}
+										placeholderTextColor={
+											styles.placeholderTextColor.color
+										}
+										underlineColorAndroid="transparent"
 										onChange={
 											this.onChangeDownloadButtonText
 										}
