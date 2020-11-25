@@ -4,7 +4,19 @@ exports[`File block renders file without crashing 1`] = `
 <View
   pointerEvents="box-none"
 >
-  <View>
+  <View
+    onLayout={[Function]}
+  >
+    <Text
+      onTextLayout={[Function]}
+      style={
+        Object {
+          "color": "gray",
+        }
+      }
+    >
+      
+    </Text>
     Modal
     <View>
       <RCTAztecView
@@ -69,20 +81,63 @@ exports[`File block renders file without crashing 1`] = `
         ]
       }
     >
-      <TextInput
-        allowFontScaling={true}
-        fontFamily="serif"
-        onChange={[Function]}
-        rejectResponderTermination={true}
-        scrollEnabled={false}
-        style={
-          Object {
-            "fontFamily": "serif",
+      <View>
+        <RCTAztecView
+          accessible={true}
+          activeFormats={Array []}
+          blockType={
+            Object {
+              "tag": "p",
+            }
           }
-        }
-        underlineColorAndroid="transparent"
-        value="Download"
-      />
+          color="white"
+          deleteEnter={true}
+          disableEditingMenu={false}
+          focusable={true}
+          fontFamily="serif"
+          isMultiline={false}
+          maxImagesWidth={200}
+          minWidth={40}
+          onBackspace={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onContentSizeChange={[Function]}
+          onEnter={[Function]}
+          onFocus={[Function]}
+          onHTMLContentWithCursor={[Function]}
+          onKeyDown={[Function]}
+          onPaste={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onSelectionChange={[Function]}
+          onStartShouldSetResponder={[Function]}
+          placeholder=""
+          placeholderTextColor="white"
+          selectionColor="white"
+          style={
+            Object {
+              "backgroundColor": undefined,
+              "color": "white",
+              "maxWidth": 0,
+              "minHeight": 0,
+            }
+          }
+          text={
+            Object {
+              "eventCount": undefined,
+              "linkTextColor": undefined,
+              "selection": null,
+              "text": "<p >Download</p>",
+            }
+          }
+          textAlign="center"
+          triggerKeyCodes={Array []}
+        />
+      </View>
     </View>
   </View>
 </View>
